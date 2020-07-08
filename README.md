@@ -40,11 +40,11 @@
 
 #### 赞赏
 如果您觉得本项目对您有帮助的话，请予以支持，您的支持就是我的动力。
+
 | 支付宝 | 微信 |
 | ------ | ---- |
-|    ![](docs/images/支付宝.jpg)    |  ![](docs/images/wechat.png)    |
+|    <img src="docs/images/支付宝.jpg" width="200px" />    |  <img src="docs/images/wechat.png" width="200px" />    |
 
 
-
-
+ 
 
