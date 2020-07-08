@@ -44,7 +44,7 @@
 
 | 支付宝 | 微信 |
 | ------ | ---- |
-|    <img src="docs/images/支付宝.jpg" width="200px" />    |  <img src="docs/images/wechat.png" width="200px" />    |
+|    <img src="docs/images/支付宝.jpg" width="200px" />    |  <img src="./docs/images/wechat.png" width="200px" />    |
 
 
  
