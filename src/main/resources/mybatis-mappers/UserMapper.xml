@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codermy.myspringsecurity.dao.UserDao">
+
+    <update id="updateUser">
+		update tb_user t
+		<set>
+			<if test="userName != null">
+				user_name = #{userName},
+			</if>
+			<if test="nickName != null">
+				nick_name = #{nickName},
+			</if>
+			<if test="phone != null">
+				phone = #{phone},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			update_time = #{updateTime}
+		</set>
+		where t.id = #{id}
+	</update>
+
+</mapper>

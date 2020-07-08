@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>权限树扩展分享</title>
+    <link rel="stylesheet" th:href="@{/xadmin/lib/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/xadmin/lib/layui_ext/dtree/dtree.css}" />
+    <link rel="stylesheet" th:href="@{/xadmin/lib/layui_ext/dtree/font/dtreefont.css}" />
+    <script th:src="@{/xadmin/lib/layui/layui.js}" charset="utf-8"></script>
+    <header th:replace="header::html"></header>
+</head>
+<body>
+<div class="layui-container">
+    <form class="layui-form">
+        <input type="text" id="id" th:value="${tbPermission.id}" name="id" style="display:none;" autocomplete="off" class="layui-input">
+        <div class="layui-form-item">
+            <label for="L_name" class="layui-form-label">
+                <span class="x-red">*</span>菜单名
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="L_name" th:value="${tbPermission.name}" name="name" required="" lay-verify="name" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>将会成为菜单名
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="L_name" class="layui-form-label">
+                <span class="x-red"></span>链接
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="L_href" th:value="${tbPermission.url}" name="url"  lay-verify="href" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="L_name" class="layui-form-label">
+                <span class="x-red"></span>权限值
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="L_permission" th:value="${tbPermission.permission}" name="permission"  lay-verify="permission" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="L_name" class="layui-form-label">
+                <span class="x-red">*</span>排序
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="L_sort" th:value="${tbPermission.sort}" name="sort" required="" lay-verify="sort" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="col-md-2 control-label layui-form-label">上级菜单</label>
+            <div class="layui-input-inline">
+                <input type="number" id="parentId" th:value="${tbPermission.parentId}" name="parentId"  lay-verify="parentId" style="display:none;" autocomplete="off" class="layui-input">
+                <div style="width: 600px"><ul id="dataTree" class="dtree" data-id="0" th:data-value="${tbPermission.parentId}"></ul></div>
+            </div>
+        </div>
+        <!-- 对应的html -->
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <button  class="layui-btn" lay-filter="add" lay-submit="">
+                保存
+            </button>
+        </div>
+    </form>
+</div>
+</body>
+
+<script type="text/javascript">
+    //点击任何地方关闭下拉树
+    $("body").on("click", function(event){
+        $("div[dtree-id][dtree-select]").removeClass("layui-form-selected");
+        $("div[dtree-id][dtree-card]").removeClass("dtree-select-show layui-anim layui-anim-upbit");
+    });
+    // 对应的js
+    layui.config({
+        base: '/xadmin/lib/layui_ext/dtree/' //配置 layui 第三方扩展组件存放的基础目录
+    }).extend({
+        dtree: 'dtree' //定义该组件模块名
+    }).use(['element','layer', 'dtree','form','laydate'], function(){
+        var form = layui.form,
+            layer = layui.layer,
+            dtree = layui.dtree,
+            laydate = layui.laydate,
+            formDate = null
+            $ = layui.$;
+        laydate.render({
+            elem: '#L_birthday'
+            ,format: 'yyyy-MM-dd' //可任意组合
+        });
+        dtree.render({
+            elem: "#dataTree",  //绑定元素
+            url: "/system/permission/build",  //异步接口
+            method: "get",
+            dataStyle: "layuiStyle",  //使用layui风格的数据格式
+            dataFormat: "list",  //配置data的风格为list
+            response:{message:"msg",statusCode:200},  //修改response中返回数据的定义
+            select: true,
+            selectCardHeight: "200"
+        });
+        var param = dtree.getNowParam("dataTree");
+        formDate = $("#parentId");
+        dtree.on("node('dataTree')" ,function(obj){
+            var param = dtree.getNowParam("dataTree");
+            $("#parentId").val(param.nodeId);
+            formDate = $("#parentId");
+        });
+        form.verify({
+            name: function(value){
+                if(value.length < 2){
+                    return '菜单名至少2个字符';
+                }
+            },
+            sort: function(value){
+                if(value.length <= 0){
+                    return '请填写整数排序值';
+                }
+            }
+        });
+        //监听提交
+        form.on('submit(add)', function(data){
+            var permissionId = formDate;
+            var bs = data.field.parentId
+            data.field.parentId = Number (bs)
+            var json = JSON.stringify(data.field)
+            if(data.field.sort.length <= 0) {
+                layer.msg('请填写排序值');
+            }else if(permissionId == null){
+                layer.msg('请选择对应的上级菜单');
+            }else{
+                data.field.parentId = permissionId;
+                var isUpdate = false;
+                if(data.field.id && data.field.id.length > 0  ){
+                    isUpdate = true;
+                }
+                $.ajax({
+                    url:isUpdate?"/system/permission/edit":"/system/permission/add",
+                    type:"POST",
+                    contentType: "application/json; charset=utf-8",
+                    data:json,
+                    dataType:'json',
+                    success:function(result){
+                        layer.alert("保存成功", {icon: 6},function () {
+                            //关闭当前frame
+                            xadmin.close();
+                            // 可以对父窗口进行刷新
+                            xadmin.father_reload();
+                        });
+                    }
+                });
+            }
+            return false;
+        });
+    });
+
+
+</script>
+</html>

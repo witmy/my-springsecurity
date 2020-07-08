@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>新增角色信息</title>
+    <link rel="stylesheet" th:href="@{/xadmin/lib/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/xadmin/lib/layui_ext/dtree/dtree.css}" />
+    <link rel="stylesheet" th:href="@{/xadmin/lib/layui_ext/dtree/font/dtreefont.css}" />
+    <script th:src="@{/xadmin/lib/layui/layui.js}" charset="utf-8"></script>
+    <header th:replace="header::html"></header>
+</head>
+
+<body>
+<div class="x-body">
+    <form class="layui-form">
+
+        <div class="layui-form-item">
+            <label for="L_name" class="layui-form-label">
+                <span class="x-red">*</span>角色名
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="L_name" th:value="${tbRole.name}" name="name" required="" lay-verify="name" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>将会成为角色名
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="L_description" class="layui-form-label">
+                <span class="x-red">*</span>描述
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="L_description" th:value="${tbRole.description}" name="description" required="" lay-verify="description" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>该角色的定位或权限范围
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="col-md-2 control-label layui-form-label">权限</label>
+            <div class="layui-input-inline">
+                <div style="width: 300px;background-color: white;border:1px solid black; "><ul id="dataTree" class="dtree" data-id="0"></ul></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <button  class="layui-btn" lay-filter="add" lay-submit="">
+                保存
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    // 对应的js
+    layui.config({
+        base: '/xadmin/lib/layui_ext/dtree/' //配置 layui 第三方扩展组件存放的基础目录
+    }).extend({
+        dtree: 'dtree' //定义该组件模块名
+    }).use(['element','layer', 'dtree','form','laydate'], function() {
+        var form = layui.form,
+            layer = layui.layer,
+            dtree = layui.dtree,
+            laydate = layui.laydate,
+            formDate = null
+            $ = layui.$;
+        laydate.render({
+            elem: '#L_birthday'
+            , format: 'yyyy-MM-dd' //可任意组合
+        });
+        var DTree = null;
+        DTree =dtree.render({
+            elem: "#dataTree",  //绑定元素
+            url: "/system/permission/build",  //异步接口
+            method: "get",
+            dataStyle: "layuiStyle",  //使用layui风格的数据格式
+            dataFormat: "list",  //配置data的风格为list
+            response: {message: "msg", statusCode: 200},  //修改response中返回数据的定义
+            checkbar: true,  //开启复选框
+              // layui主题风格
+            checkbarType: "p-casc"
+        });
+        form.verify({
+            name: function(value){
+                if(value.length < 3){
+                    return '角色名至少3个字符';
+                }
+            }
+        });
+        form.on('submit(add)', function(data){
+            var params = dtree.getCheckbarNodesParam("dataTree"); // 获取选中值
+            if(params.length == 0){
+                layer.msg("请至少选择一个节点",{icon:2});
+                flag = false;
+            }
+            // 获取复选框数组数据
+            var paramJsonArr = DTree.getCheckbarJsonArrParam();
+            var ids = paramJsonArr["nodeId"]
+            var datas = data.field
+            datas['permissionIds'] = ids
+            $.ajax({
+                url:"/system/role/add",
+                type:"POST",
+                contentType: "application/json; charset=utf-8",
+                data:JSON.stringify(datas),
+                dataType:'json',
+                success:function(result){
+                    layer.alert("添加成功", {icon: 6},function () {
+                        //关闭当前frame
+                        xadmin.close();
+                        // 可以对父窗口进行刷新
+                        xadmin.father_reload();
+                    });
+                }
+            });
+        return false;
+        });
+    })
+
+</script>
+</body>
+</html>
