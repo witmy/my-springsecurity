@@ -1,13 +1,13 @@
 # my-springsecurity
 #### 介绍
 这是一款基于springsecurity的极简RBAC权限管理系统
-![](docs/images/login.PNG)
-![](docs/images/menu.PNG)
-![](docs/images/role.PNG)
-![](docs/images/roleedit.PNG)
-![](docs/images/user.PNG)
-![](docs/images/useredit.PNG)
-![](docs/images/useredit2.PNG)
+![login](docs/images/login.PNG)
+![menu](docs/images/menu.PNG)
+![role](docs/images/role.PNG)
+![roleedit](docs/images/roleedit.PNG)
+![user](docs/images/user.PNG)
+![useredit](docs/images/useredit.PNG)
+![useredit2](docs/images/useredit2.PNG)
 
 #### 技术选型
 1、springboot  
